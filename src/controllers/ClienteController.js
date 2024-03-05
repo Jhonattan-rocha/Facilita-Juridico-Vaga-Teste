@@ -4,7 +4,7 @@ class ClienteController {
   async store(req, res) {
     try {
       const cliente = await Cliente.create(req.body);
-      return res.status(200).json({result: cliente});
+      return res.status(200).json({result: cliente.rows});
     }catch(err){
       return res.status(400).json({
             result: null,
@@ -15,8 +15,14 @@ class ClienteController {
 
   async index(req, res){
     try{
-      const clientes = await Cliente.findAll();
-      return res.status(200).json({result: clientes});
+      let clientes = null
+      if(req.query.filter){
+        let filter = String(req.query.filter).split(",")
+        clientes = await Cliente.findWhere(filter[0], filter[1]);
+      }else{
+        clientes = await Cliente.findAll()
+      }
+      return res.status(200).json({result: clientes.rows});
     }catch(err){
       console.log(err)
       return res.status(400).json({
@@ -36,7 +42,7 @@ class ClienteController {
         });
       };
       const cliente = await Cliente.findByPk(id);
-      return res.status(200).json({result: cliente});
+      return res.status(200).json({result: cliente.rows});
     }catch(err){
       return res.status(400).json({
         result: null,
@@ -65,7 +71,7 @@ class ClienteController {
 
       const result = await Cliente.update(id, {...req.body});
 
-      return res.status(200).json({result: result});
+      return res.status(200).json({result: result.rows});
     }catch(err){
       return res.status(400).json({
             result: null,
@@ -95,7 +101,7 @@ class ClienteController {
 
       await Cliente.delete(id);
 
-      return res.status(200).json({result: cliente});
+      return res.status(200).json({result: cliente.rows});
     }catch(err){
       return res.status(400).json({
         result: null,

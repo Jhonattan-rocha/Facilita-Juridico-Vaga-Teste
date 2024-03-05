@@ -1,5 +1,4 @@
 import clientesRouter from './routes/clienteRoutes';
-import tokenRouter from './routes/tokenRoutes';
 
 import express from 'express';
 import cors from 'cors';
@@ -40,7 +39,6 @@ class App {
 
   routes() {
     this.app.use(clientesRouter);
-    this.app.use(tokenRouter);
   }
 
 }

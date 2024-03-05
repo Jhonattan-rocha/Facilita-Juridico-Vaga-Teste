@@ -7,18 +7,12 @@ class Cliente{
         CREATE TABLE Cliente (
           id SERIAL PRIMARY KEY,
           nome VARCHAR(255),
-          telefone VARCHAR(14),
+          telefone VARCHAR(20),
           email VARCHAR(255) UNIQUE
         );
       `;
-      con.query(sql, async (err, result) => {
-        if(!err){
-          console.log(result);
-        }else{
-          console.log(err);
-        }
-        await con.end();
-      });
+      await con.query(sql);
+      await con.end();
     }
 
     async findByPk(id=Number()){
@@ -60,6 +54,19 @@ class Cliente{
       }
       return null;
     }
+
+    async findWhere(field = String(), value = String()) {
+      const con = await Connection();
+      let sql = `
+        SELECT id, nome, telefone, email FROM cliente WHERE LOWER(${field}) LIKE LOWER($1);
+      `;
+      let res = await con.query(sql, [`%${value}%`]);
+      await con.end();
+      if (res) {
+        return res;
+      }
+      return null;
+    }       
 
     async update(id=Number(), body={}){
       const con = await Connection();
