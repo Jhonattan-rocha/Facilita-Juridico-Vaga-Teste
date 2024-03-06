@@ -4,6 +4,7 @@ import ClienteController from '../controllers/ClienteController';
 const router = new Router();
 
 router.post('/cliente/', ClienteController.store);
+router.post('/cliente_route/', ClienteController.route);
 router.get("/clientes/", ClienteController.index);
 router.get("/cliente/:id", ClienteController.show);
 router.put('/cliente/:id', ClienteController.update);

@@ -13,6 +13,19 @@ class ClienteController {
     };
   };
 
+  async route(req, res) {
+    try {
+      const clientes = await Cliente.calculateRoute(req.body);
+      return res.status(200).json({result: clientes});
+    }catch(err){
+      console.log(err)
+      return res.status(400).json({
+        result: null,
+        error: "Erro ao calcular a rota"
+      });
+    }
+  }
+
   async index(req, res){
     try{
       let clientes = null
@@ -68,7 +81,6 @@ class ClienteController {
           error: "Cliente não encontrado"
         });
       };
-
       const result = await Cliente.update(id, {...req.body});
 
       return res.status(200).json({result: result.rows});
