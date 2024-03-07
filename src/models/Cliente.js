@@ -17,60 +17,92 @@ class Cliente{
       await con.end();
     }
 
+    /**primeira solução testada
+      async calculateRoute(point) {
+            const clientes = await this.findAll();
+
+            //buscando o ultimo ponto a ser visitado antes de voltar
+            let last_ponit = this.getBiggerDistPoint(point, clientes.rows);
+            let bigger_dist = this.calculateDist(point, last_ponit);
+
+            // pontos onde passará na ida e na volta
+            let route_go = []   
+
+            let len = clientes.rows.length
+            let current = {...point};
+
+            for(let i=0; i<len; i++){
+              let dist = this.calculateDist(current, clientes.rows[i]);
+              // colocar todos os clientes com a distancia menor que o ultimo elemento
+              if(dist <= bigger_dist){
+                route_go.push(clientes.rows[i]);
+                current = {...clientes.rows[i]};
+                console.log(dist, clientes.rows[i]);
+              }
+            }
+
+            // ordernar com base na diferença absoluta das distancias
+            route_go = route_go.sort(this.compararDist);
+            route_go.push({...point});
+            return route_go;
+          }
+    */
+
     calculateDist(pointI, pointF) {
       return Math.sqrt(Math.pow(pointF.cord_x - pointI.cord_x, 2) + Math.pow(pointF.cord_y - pointI.cord_y, 2));
     }
     
-    getBiggerDistPoint(point={}, clientes=[]) {
-      let maior = Number.MIN_VALUE;
-      let cli = null;
-      for(let cliente of clientes){
-        let dist = this.calculateDist(point, cliente);
-        if(dist > maior){
-          maior = dist;
-          cli = {...cliente};
-        }
-      }
-      return cli;
-    }
-
-    compararDist(a, b) {
-      const distanciaA = Math.sqrt(Math.pow(a.cord_x, 2) + Math.pow(a.cord_y, 2));
-      const distanciaB = Math.sqrt(Math.pow(b.cord_x, 2) + Math.pow(b.cord_y, 2));
+    // complemento da primeira solução que foi
+    // getBiggerDistPoint(point={}, clientes=[]) {
+    //   let maior = Number.MIN_VALUE;
+    //   let cli = null;
+    //   for(let cliente of clientes){
+    //     let dist = this.calculateDist(point, cliente);
+    //     if(dist > maior){
+    //       maior = dist;
+    //       cli = {...cliente};
+    //     }
+    //   }
+    //   return cli;
+    // }
     
-      // Retorna a diferença absoluta entre as distâncias
-      return Math.abs(distanciaA) - Math.abs(distanciaB);
-    }
+    // terceira solução testada
+    // compararDist(a, b) {
+    //   const distanciaA = Math.sqrt(Math.pow(a.cord_x, 2) + Math.pow(a.cord_y, 2));
+    //   const distanciaB = Math.sqrt(Math.pow(b.cord_x, 2) + Math.pow(b.cord_y, 2));
     
-    async calculateRoute(point) {
-      const clientes = await this.findAll();
-
-      /**buscando o ultimo ponto a ser visitado antes de voltar */
-      let last_ponit = this.getBiggerDistPoint(point, clientes.rows);
-      let bigger_dist = this.calculateDist(point, last_ponit);
-
-      // pontos onde passará na ida e na volta
-      let route_go = []   
-
-      let len = clientes.rows.length
-      let current = {...point};
-
-      clientes.rows = clientes.rows.sort(this.compararDist);
-
-      for(let i=0; i<len; i++){
-        let dist = this.calculateDist(current, clientes.rows[i]);
-        // colocar todos os clientes com a distancia menor que o ultimo elemento
-        if(dist <= bigger_dist){
-          route_go.push(clientes.rows[i]);
-          current = {...clientes.rows[i]};
-          console.log(dist, clientes.rows[i]);
+    //   // Retorna a diferença absoluta entre as distâncias
+    //   return Math.abs(distanciaA) - Math.abs(distanciaB);
+    // }
+    
+    async calculateRoute(init_point) {
+      const unvisitedPoints = (await this.findAll()).rows;
+      let currentPoint = {...init_point};
+      let route = [];
+  
+      while (unvisitedPoints.length > 0) {
+        let nearestPoint = null;
+        let minDistance = Number.MAX_VALUE;
+        
+        // percorrer todos os pontos para saber qual é o mais próximo do ponto atual
+        for (const point of unvisitedPoints) {
+          const distance = this.calculateDist(currentPoint, point);
+  
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearestPoint = point;
+          }
         }
+        
+        //trocar o ponto atual pelo ponto encontrado no for anterior
+        route.push(nearestPoint);
+        currentPoint = nearestPoint;
+        unvisitedPoints.splice(unvisitedPoints.indexOf(nearestPoint), 1);
       }
-
-      // ordernar com base na diferença absoluta das distancias
-      route_go = route_go.sort(this.compararDist);
-      route_go.push({...point});
-      return route_go;
+  
+      // Retornando ao ponto inicial para fechar o ciclo
+      route.push(route[0]);
+      return route;
     }
 
     async findByPk(id=Number()){
