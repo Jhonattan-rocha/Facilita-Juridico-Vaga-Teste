@@ -21,7 +21,7 @@ class Cliente{
       async calculateRoute(point) {
             const clientes = await this.findAll();
 
-            //buscando o ultimo ponto a ser visitado antes de voltar
+            // buscando o ultimo ponto a ser visitado antes de voltar
             let last_ponit = this.getBiggerDistPoint(point, clientes.rows);
             let bigger_dist = this.calculateDist(point, last_ponit);
 
@@ -37,7 +37,6 @@ class Cliente{
               if(dist <= bigger_dist){
                 route_go.push(clientes.rows[i]);
                 current = {...clientes.rows[i]};
-                console.log(dist, clientes.rows[i]);
               }
             }
 
